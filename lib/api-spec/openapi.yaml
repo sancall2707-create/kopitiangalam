@@ -1,22 +1,25 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Kopi Tiang Alam API specification
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: public
+    description: Public customer-facing endpoints
+  - name: admin
+    description: Admin-only endpoints
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,7 +27,455 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ─────────────────── PUBLIC ───────────────────
+
+  /categories:
+    get:
+      operationId: listCategories
+      tags: [public]
+      summary: List all categories
+      responses:
+        "200":
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Category"
+
+  /products:
+    get:
+      operationId: listProducts
+      tags: [public]
+      summary: List all active products
+      parameters:
+        - name: categoryId
+          in: query
+          schema:
+            type: integer
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+
+  /products/{id}:
+    get:
+      operationId: getProduct
+      tags: [public]
+      summary: Get a single product
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Product detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+        "404":
+          description: Not found
+
+  /orders:
+    post:
+      operationId: createOrder
+      tags: [public]
+      summary: Create a new order (dine-in or takeaway)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderInput"
+      responses:
+        "201":
+          description: Order created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  /orders/{orderNumber}:
+    get:
+      operationId: getOrderByNumber
+      tags: [public]
+      summary: Get order status by order number
+      parameters:
+        - name: orderNumber
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Order status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        "404":
+          description: Not found
+
+  # ─────────────────── ADMIN AUTH ───────────────────
+
+  /admin/login:
+    post:
+      operationId: adminLogin
+      tags: [admin]
+      summary: Admin login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: JWT token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+        "401":
+          description: Unauthorized
+
+  # ─────────────────── ADMIN DASHBOARD ───────────────────
+
+  /admin/dashboard:
+    get:
+      operationId: getAdminDashboard
+      tags: [admin]
+      summary: Get dashboard stats
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  # ─────────────────── ADMIN ORDERS ───────────────────
+
+  /admin/orders:
+    get:
+      operationId: listAdminOrders
+      tags: [admin]
+      summary: List all orders (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: date
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of orders
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Order"
+
+  /admin/orders/{id}:
+    get:
+      operationId: getAdminOrder
+      tags: [admin]
+      summary: Get a single order (admin)
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Order detail
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+    patch:
+      operationId: updateOrderStatus
+      tags: [admin]
+      summary: Update order status
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OrderStatusUpdate"
+      responses:
+        "200":
+          description: Updated order
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+
+  # ─────────────────── ADMIN PRODUCTS ───────────────────
+
+  /admin/products:
+    get:
+      operationId: listAdminProducts
+      tags: [admin]
+      summary: List all products (admin)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Product"
+    post:
+      operationId: createProduct
+      tags: [admin]
+      summary: Create a new product
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductInput"
+      responses:
+        "201":
+          description: Created product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+
+  /admin/products/{id}:
+    put:
+      operationId: updateProduct
+      tags: [admin]
+      summary: Update a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProductUpdate"
+      responses:
+        "200":
+          description: Updated product
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Product"
+    delete:
+      operationId: deleteProduct
+      tags: [admin]
+      summary: Delete a product
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─────────────────── ADMIN CATEGORIES ───────────────────
+
+  /admin/categories:
+    post:
+      operationId: createCategory
+      tags: [admin]
+      summary: Create a category
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+
+  /admin/categories/{id}:
+    put:
+      operationId: updateCategory
+      tags: [admin]
+      summary: Update a category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CategoryInput"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Category"
+    delete:
+      operationId: deleteCategory
+      tags: [admin]
+      summary: Delete a category
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ─────────────────── ADMIN TABLES ───────────────────
+
+  /admin/tables:
+    get:
+      operationId: listTables
+      tags: [admin]
+      summary: List all tables
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of tables
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CoffeeTable"
+    post:
+      operationId: createTable
+      tags: [admin]
+      summary: Create a table
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableInput"
+      responses:
+        "201":
+          description: Created table
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeTable"
+
+  /admin/tables/{id}:
+    put:
+      operationId: updateTable
+      tags: [admin]
+      summary: Update a table
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TableInput"
+      responses:
+        "200":
+          description: Updated table
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CoffeeTable"
+    delete:
+      operationId: deleteTable
+      tags: [admin]
+      summary: Delete a table
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +485,244 @@ components:
       required:
         - status
 
+    Category:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        createdAt:
+          type: string
+
+    CategoryInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+          minLength: 1
+
+    Product:
+      type: object
+      required: [id, name, price, status, createdAt]
+      properties:
+        id:
+          type: integer
+        categoryId:
+          type: ["integer", "null"]
+        categoryName:
+          type: ["string", "null"]
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        image:
+          type: ["string", "null"]
+        stock:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+        createdAt:
+          type: string
+
+    ProductInput:
+      type: object
+      required: [name, price, status]
+      properties:
+        categoryId:
+          type: ["integer", "null"]
+        name:
+          type: string
+          minLength: 1
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        image:
+          type: ["string", "null"]
+        stock:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+
+    ProductUpdate:
+      type: object
+      properties:
+        categoryId:
+          type: ["integer", "null"]
+        name:
+          type: string
+        description:
+          type: ["string", "null"]
+        price:
+          type: number
+        image:
+          type: ["string", "null"]
+        stock:
+          type: integer
+        status:
+          type: string
+          enum: [active, inactive]
+
+    OrderItem:
+      type: object
+      required: [id, productId, productName, quantity, price, subtotal]
+      properties:
+        id:
+          type: integer
+        productId:
+          type: integer
+        productName:
+          type: string
+        productImage:
+          type: ["string", "null"]
+        quantity:
+          type: integer
+        price:
+          type: number
+        subtotal:
+          type: number
+
+    OrderItemInput:
+      type: object
+      required: [productId, quantity]
+      properties:
+        productId:
+          type: integer
+        quantity:
+          type: integer
+
+    Order:
+      type: object
+      required: [id, orderNumber, customerName, orderType, status, totalPrice, createdAt]
+      properties:
+        id:
+          type: integer
+        orderNumber:
+          type: string
+        customerName:
+          type: string
+        tableNumber:
+          type: ["string", "null"]
+        orderType:
+          type: string
+          enum: [dine_in, takeaway]
+        status:
+          type: string
+          enum: [pending, processing, preparing, ready, completed, cancelled]
+        notes:
+          type: ["string", "null"]
+        totalPrice:
+          type: number
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItem"
+        createdAt:
+          type: string
+
+    OrderInput:
+      type: object
+      required: [customerName, orderType, items]
+      properties:
+        customerName:
+          type: string
+          minLength: 1
+        tableNumber:
+          type: ["string", "null"]
+        orderType:
+          type: string
+          enum: [dine_in, takeaway]
+        notes:
+          type: ["string", "null"]
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderItemInput"
+
+    OrderStatusUpdate:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, processing, preparing, ready, completed, cancelled]
+
+    CoffeeTable:
+      type: object
+      required: [id, tableNumber, status, createdAt]
+      properties:
+        id:
+          type: integer
+        tableNumber:
+          type: string
+        qrCode:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [available, occupied]
+        createdAt:
+          type: string
+
+    TableInput:
+      type: object
+      required: [tableNumber]
+      properties:
+        tableNumber:
+          type: string
+          minLength: 1
+        status:
+          type: string
+          enum: [available, occupied]
+
+    AdminLoginInput:
+      type: object
+      required: [username, password]
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+
+    AuthToken:
+      type: object
+      required: [token, username]
+      properties:
+        token:
+          type: string
+        username:
+          type: string
+
+    DashboardStats:
+      type: object
+      required: [totalOrders, activeOrders, dailySales, recentOrders, ordersByStatus]
+      properties:
+        totalOrders:
+          type: integer
+        activeOrders:
+          type: integer
+        dailySales:
+          type: number
+        recentOrders:
+          type: array
+          items:
+            $ref: "#/components/schemas/Order"
+        ordersByStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/OrderStatusCount"
+
+    OrderStatusCount:
+      type: object
+      required: [status, count]
+      properties:
+        status:
+          type: string
+        count:
+          type: integer

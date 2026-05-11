@@ -1,0 +1,440 @@
+You are a senior full-stack engineer.
+
+Build a production-ready Progressive Web App (PWA) called "Kopi Tiang Alam".
+
+# PROJECT OVERVIEW
+
+Kopi Tiang Alam is a modern coffee shop ordering system where customers can order food and drinks without registration or login.
+
+Customers can:
+
+* Scan QR code on table for dine-in
+* Input their name for takeaway orders
+* Browse menu
+* Add products to cart
+* Checkout orders
+* Track order status in realtime
+
+Admin can:
+
+* Login securely
+* Manage products
+* Manage categories
+* Manage tables
+* Generate QR codes
+* Manage customer orders
+* Update order statuses
+
+The system must be mobile-first, responsive, modern, and optimized for coffee shop usage.
+
+---
+
+# TECH STACK
+
+Frontend:
+
+* React.js
+* Vite
+* Tailwind CSS
+* React Router DOM
+* Axios
+* React Query
+* PWA Plugin
+
+Backend:
+
+* Node.js
+* Express.js
+
+Database:
+
+* MySQL
+
+Authentication:
+
+* JWT authentication for admin only
+* bcrypt password hashing
+
+Deployment Target:
+
+* Ubuntu VPS (IDCloudHost)
+* Nginx
+* PM2
+
+---
+
+# APPLICATION ARCHITECTURE
+
+Use separate frontend and backend folders.
+
+Project structure:
+
+kopi-tiang-alam/
+│
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── pages/
+│   │   ├── layouts/
+│   │   ├── routes/
+│   │   ├── services/
+│   │   ├── hooks/
+│   │   ├── context/
+│   │   └── utils/
+│
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── uploads/
+│
+├── database/
+│   └── schema.sql
+│
+└── README.md
+
+---
+
+# CUSTOMER FLOW
+
+## DINE IN FLOW
+
+1. Customer scans QR code on table
+2. System automatically detects table number
+3. Customer sees menu
+4. Customer adds items to cart
+5. Customer checkout order
+6. Order sent to admin dashboard
+7. Customer tracks order status
+
+Example URL:
+https://kopitiangalam.com/menu?table=07
+
+---
+
+## TAKEAWAY FLOW
+
+1. Customer opens website
+2. Customer inputs name
+3. Customer browses menu
+4. Customer checkout order
+5. System generates queue number
+6. Customer tracks order status
+
+---
+
+# CUSTOMER FEATURES
+
+## Landing Page
+
+Features:
+
+* Coffee shop branding
+* Hero section
+* Dine In button
+* Takeaway button
+* Promo/banner section
+
+---
+
+## Menu Page
+
+Features:
+
+* Product list
+* Category filter
+* Search product
+* Product cards
+* Responsive mobile layout
+
+Categories:
+
+* Coffee
+* Non Coffee
+* Food
+* Snacks
+* Dessert
+
+---
+
+## Product Detail Page
+
+Features:
+
+* Product image
+* Product description
+* Price
+* Add to cart button
+
+---
+
+## Cart Page
+
+Features:
+
+* Cart item list
+* Quantity update
+* Remove item
+* Total price
+
+---
+
+## Checkout Page
+
+Features:
+
+* Table number or customer name
+* Order notes
+* Order summary
+* Submit order button
+
+---
+
+## Order Tracking Page
+
+Features:
+
+* Queue number
+* Current order status
+* Order details
+
+Order statuses:
+
+* Pending
+* Processing
+* Preparing
+* Ready
+* Completed
+* Cancelled
+
+---
+
+# ADMIN FEATURES
+
+## Admin Login
+
+Secure admin authentication using JWT.
+
+---
+
+## Admin Dashboard
+
+Features:
+
+* Total orders
+* Active orders
+* Daily sales
+* Recent orders
+
+---
+
+## Order Management
+
+Features:
+
+* View all orders
+* Filter orders by status
+* Update order status
+* View order details
+
+---
+
+## Product Management
+
+Features:
+
+* Add product
+* Edit product
+* Delete product
+* Upload product image
+* Update stock
+
+---
+
+## Category Management
+
+Features:
+
+* Create category
+* Edit category
+* Delete category
+
+---
+
+## Table Management
+
+Features:
+
+* Add table
+* Edit table
+* Generate QR code for each table
+* Download QR code
+
+---
+
+# DATABASE DESIGN
+
+Create MySQL schema with these tables:
+
+## admins
+
+* id
+* username
+* password
+* created_at
+
+## categories
+
+* id
+* name
+* created_at
+
+## products
+
+* id
+* category_id
+* name
+* description
+* price
+* image
+* stock
+* status
+* created_at
+
+## tables
+
+* id
+* table_number
+* qr_code
+* status
+* created_at
+
+## orders
+
+* id
+* order_number
+* customer_name
+* table_number
+* order_type
+* status
+* notes
+* total_price
+* created_at
+
+## order_items
+
+* id
+* order_id
+* product_id
+* quantity
+* price
+* subtotal
+
+---
+
+# API ENDPOINTS
+
+## PUBLIC APIs
+
+GET /api/products
+GET /api/products/:id
+GET /api/categories
+POST /api/orders
+GET /api/orders/:orderNumber
+
+---
+
+## ADMIN APIs
+
+POST /api/admin/login
+
+GET /api/admin/orders
+PATCH /api/admin/orders/:id
+
+POST /api/admin/products
+PUT /api/admin/products/:id
+DELETE /api/admin/products/:id
+
+POST /api/admin/categories
+PUT /api/admin/categories/:id
+DELETE /api/admin/categories/:id
+
+---
+
+# UI/UX DESIGN
+
+Design style:
+
+* Modern coffee shop aesthetic
+* Warm brown color palette
+* Cream and dark coffee colors
+* Minimalist UI
+* Elegant typography
+* Rounded corners
+* Mobile-first responsive design
+
+---
+
+# PWA REQUIREMENTS
+
+The app must:
+
+* Be installable on mobile
+* Include manifest.json
+* Include service worker
+* Work as mobile app
+* Support splash screen
+* Support app icons
+
+---
+
+# SECURITY REQUIREMENTS
+
+* bcrypt password hashing
+* JWT authentication
+* Protected admin routes
+* Input validation
+* API sanitization
+* Environment variables support
+
+---
+
+# DEPLOYMENT REQUIREMENTS
+
+Prepare application for Ubuntu VPS deployment using:
+
+* PM2
+* Nginx
+* SSL HTTPS
+* Environment variables
+
+Include:
+
+* example .env files
+* deployment instructions
+* nginx configuration example
+* PM2 ecosystem config
+
+---
+
+# DEVELOPMENT REQUIREMENTS
+
+Generate:
+
+* Full frontend
+* Full backend
+* MySQL schema
+* Responsive UI
+* REST API
+* QR code system
+* Admin dashboard
+* PWA configuration
+* Production-ready structure
+
+Build the application step by step carefully and ensure all features are connected properly.

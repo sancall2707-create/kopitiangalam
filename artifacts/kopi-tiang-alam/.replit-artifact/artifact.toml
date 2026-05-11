@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Kopi Tiang Alam"
+version = "1.0.0"
+id = "artifacts/kopi-tiang-alam"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 24894
+
+[services.development]
+run = "pnpm --filter @workspace/kopi-tiang-alam run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/kopi-tiang-alam", "run", "build" ]
+publicDir = "artifacts/kopi-tiang-alam/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "24894"
+BASE_PATH = "/"

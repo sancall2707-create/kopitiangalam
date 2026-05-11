@@ -1,36 +1,50 @@
-# [Project name]
+# Kopi Tiang Alam
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+A full-stack coffee shop ordering PWA. Customers browse the menu, add to cart, checkout (dine-in via QR or takeaway), and track their order in real time. Admins manage orders, products, categories, and tables with QR code generation.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/api-server run dev` — run the API server (port 8080)
+- `pnpm --filter @workspace/kopi-tiang-alam run dev` — run the frontend (auto-assigns PORT)
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Required env: `DATABASE_URL` — Postgres connection string, `SESSION_SECRET` — JWT signing secret
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Frontend: React + Vite, Tailwind CSS, wouter (routing), TanStack Query
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
+- Auth: JWT (`jsonwebtoken`) + `bcryptjs`
 - Build: esbuild (CJS bundle)
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/api-spec/openapi.yaml` — source of truth for API contracts
+- `lib/db/src/schema/` — Drizzle ORM table definitions
+- `artifacts/api-server/src/routes/` — Express route handlers (`public.ts`, `admin.ts`)
+- `artifacts/api-server/src/middlewares/auth.ts` — JWT middleware
+- `artifacts/kopi-tiang-alam/src/pages/` — React pages (customer + admin)
+- `artifacts/kopi-tiang-alam/src/lib/` — cart context (`cart.tsx`), auth helpers (`auth.ts`)
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Contract-first API: OpenAPI spec drives both Zod validators (server) and React Query hooks (client)
+- JWT stored in `kta_admin_token` localStorage key; `setAuthTokenGetter` wires it into every API call
+- PostgreSQL `numeric` columns return strings — all route handlers call `parseFloat()` before responding
+- Cart state persisted in `kta_cart` localStorage key via React Context
+- Admin routes protected by `requireAdmin` middleware (Bearer JWT); frontend redirects to `/admin/login` if no token
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- **Customer flow**: Landing → Menu (with category filter + search) → Product Detail → Cart → Checkout → Order Tracking (auto-refresh every 10s)
+- **Admin flow**: Login → Dashboard (stats + chart + live orders) → Orders (status management) → Products (CRUD) → Categories (CRUD) → Tables (CRUD + QR download)
+- Dine-in orders carry a `?table=XX` URL param from QR code scans
 
 ## User preferences
 
@@ -38,7 +52,13 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Always run `pnpm run typecheck:libs` after changing DB schema or OpenAPI spec (lib rebuild needed before route typechecks pass)
+- PostgreSQL `numeric` → always coerce to float in routes before JSON response
+- After adding new routes, restart the API workflow (it builds on start)
+
+## Credentials (dev only)
+
+- Admin: `admin` / `admin123`
 
 ## Pointers
 
