@@ -63,4 +63,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
-Please use Japanese for all GitHub interactions (PR titles, descriptions, commit messages, and review replies).
+
+## User preferences
+
+- Please use Indonesian for all GitHub interactions (PR titles, descriptions, commit messages, and review replies).

@@ -48,7 +48,7 @@ A full-stack coffee shop ordering PWA. Customers browse the menu, add to cart, c
 
 ## User preferences
 
-- Please use Japanese for all GitHub interactions (PR titles, descriptions, commit messages, and review replies).
+- Please use Indonesian for all GitHub interactions (PR titles, descriptions, commit messages, and review replies).
 
 ## Gotchas
 
