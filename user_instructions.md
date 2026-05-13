@@ -48,7 +48,7 @@ A full-stack coffee shop ordering PWA. Customers browse the menu, add to cart, c
 
 ## User preferences
 
-- Please use Japanese for all GitHub interactions (PR titles, descriptions, commit messages, and review replies).
+_Populate as you build — explicit user instructions worth remembering across sessions._
 
 ## Gotchas
 
@@ -63,3 +63,4 @@ A full-stack coffee shop ordering PWA. Customers browse the menu, add to cart, c
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+Please use Japanese for all GitHub interactions (PR titles, descriptions, commit messages, and review replies).
