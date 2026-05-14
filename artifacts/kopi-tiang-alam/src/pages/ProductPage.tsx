@@ -17,7 +17,7 @@ export default function ProductPage() {
 
   const id = parseInt(params?.id ?? "", 10);
   const { data: product, isLoading } = useGetProduct(id, {
-    query: { enabled: !!id },
+    query: { enabled: !!id, queryKey: ["getProduct", id] },
   });
 
   const { addToCart, items: cartItems } = useCart();
@@ -114,13 +114,13 @@ export default function ProductPage() {
           </p>
         )}
 
-        {product.stock === 0 && (
+        {(product.stock ?? 0) === 0 && (
           <div className="rounded-xl p-3 mb-4 text-sm font-medium" style={{ background: "hsl(0,84%,95%)", color: "hsl(0,84%,45%)" }}>
             Stok habis — tidak tersedia saat ini
           </div>
         )}
 
-        {product.stock > 0 && (
+        {(product.stock ?? 0) > 0 && (
           <div className="rounded-xl p-3 mb-4 text-sm" style={{ background: "hsl(35,45%,93%)", color: "hsl(24,10%,40%)" }}>
             Stok tersedia: {product.stock}
           </div>
@@ -128,7 +128,7 @@ export default function ProductPage() {
       </div>
 
       {/* Add to cart bar */}
-      {product.stock > 0 && (
+      {(product.stock ?? 0) > 0 && (
         <div className="fixed bottom-0 left-0 right-0 p-4 border-t shadow-2xl" style={{ background: "hsl(40,33%,98%)", borderColor: "hsl(35,25%,85%)" }}>
           <div className="flex items-center gap-4 mb-3">
             <span className="text-sm font-medium" style={{ color: "hsl(24,10%,30%)" }}>Jumlah</span>
@@ -146,7 +146,7 @@ export default function ProductPage() {
               </span>
               <button
                 data-testid="button-increase-qty"
-                onClick={() => setQty((q) => Math.min(product.stock, q + 1))}
+                onClick={() => setQty((q) => Math.min(product.stock ?? 0, q + 1))}
                 className="w-9 h-9 rounded-full flex items-center justify-center"
                 style={{ background: "hsl(24,35%,25%)", color: "white" }}
               >
