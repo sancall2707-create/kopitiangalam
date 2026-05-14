@@ -12,8 +12,7 @@ import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useQueryClient } from "@tanstack/react-query";
 import { Eye } from "lucide-react";
-
-type Order = NonNullable<ReturnType<typeof useListAdminOrders>["data"]>[number];
+import type { Order } from "@workspace/api-client-react";
 
 const ALL_STATUSES = ["", "pending", "processing", "preparing", "ready", "completed", "cancelled"] as const;
 const STATUS_LABELS: Record<string, string> = {

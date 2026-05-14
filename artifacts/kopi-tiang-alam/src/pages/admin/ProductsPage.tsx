@@ -23,8 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
-
-type Product = NonNullable<ReturnType<typeof useListAdminProducts>["data"]>[number];
+import type { Product } from "@workspace/api-client-react";
 
 const schema = z.object({
   name: z.string().min(1, "Nama wajib diisi"),

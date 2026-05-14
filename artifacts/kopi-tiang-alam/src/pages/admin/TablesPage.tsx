@@ -21,8 +21,7 @@ import { z } from "zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { QRCodeCanvas } from "qrcode.react";
-
-type CoffeeTable = NonNullable<ReturnType<typeof useListTables>["data"]>[number];
+import type { CoffeeTable } from "@workspace/api-client-react";
 
 const schema = z.object({
   tableNumber: z.string().min(1, "Nomor meja wajib diisi"),
